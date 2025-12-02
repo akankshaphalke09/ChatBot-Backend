@@ -11,9 +11,7 @@ export const chatWithOpenRouter = async (req, res) => {
       return res.status(400).json({ error: "Message is required" });
     }
     const authHeader = req.headers.authorization || "";
-    const token = authHeader.startsWith("Bearer ")
-      ? authHeader.slice(7)
-      : null;
+    const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : null;
 
     const userId = token || req.ip || "anonymous";
     let history = conversations.get(userId) || [];
@@ -23,7 +21,7 @@ export const chatWithOpenRouter = async (req, res) => {
     if (history.length > MAX_MESSAGES) {
       history = history.slice(history.length - MAX_MESSAGES);
     }
-   
+
     const openRouterResponse = await axios.post(
       "https://openrouter.ai/api/v1/chat/completions",
       {
@@ -40,7 +38,7 @@ export const chatWithOpenRouter = async (req, res) => {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
-          "HTTP-Referer": "http://localhost:3000", // optional but recommended
+          "HTTP-Referer": process.env.FRONTEND_URL || "http://localhost:3000", // optional but recommended
           "X-Title": "My Chat App", // optional
         },
       }
@@ -63,15 +61,13 @@ export const chatWithOpenRouter = async (req, res) => {
 export const clearChatHistory = async (req, res) => {
   try {
     const authHeader = req.headers.authorization || "";
-    const token = authHeader.startsWith("Bearer ")
-      ? authHeader.slice(7)
-      : null;
+    const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : null;
 
     const userId = token || req.ip || "anonymous";
-    
+
     // Clear the conversation history for this user
     conversations.delete(userId);
-    
+
     return res.json({ success: true, message: "Chat history cleared" });
   } catch (err) {
     console.error("Clear chat error:", err.message);

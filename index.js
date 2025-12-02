@@ -10,7 +10,15 @@ const app = express();
 const PORT = process.env.PORT || 8080;
 
 app.use(bodyParser.json());
-app.use(cors());
+app.use(
+  cors({
+    origin: [
+      "http://localhost:3000", // local frontend
+      "https://chatbot-frontend-cda5.onrender.com", // deployed frontend
+    ],
+    credentials: true,
+  })
+);
 app.use("/auth", AuthRouter);
 app.use("/api/chat", ChatRouter);
 
